@@ -40,17 +40,19 @@
         }
     </div>
 
-    @if (!Model.FeatureEnabled || !Model.ApiKeyConfigured)
-    {
-        <div class="alert alert-warning">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>@Localizer["SummariesDisabledWarning"]
-        </div>
-    }
-    else
+    @if (Model.FeatureEnabled && Model.ApiKeyConfigured)
     {
         <p class="text-muted">
             <i class="bi bi-clock me-1"></i>@string.Format(Localizer["SummariesScheduleInfo"].Value, Model.DailyExecutionTime)
         </p>
+    }
+    else if (!Model.Summaries.Any())
+    {
+        @* Summaries can also be pushed by an external routine via POST /api/v1/summaries,
+           so only show the setup hint as long as the page is completely empty *@
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@Localizer["SummariesDisabledWarning"]
+        </div>
     }
 
     @if (!Model.Summaries.Any())

@@ -84,5 +84,14 @@ namespace MailArchiver.Models
             Newsletter => 3,
             _ => 2
         };
+
+        /// <summary>Maps arbitrary input to a known category, falling back to "info".</summary>
+        public static string Normalize(string? category) => category?.Trim().ToLowerInvariant() switch
+        {
+            Urgent => Urgent,
+            Action => Action,
+            Newsletter => Newsletter,
+            _ => Info
+        };
     }
 }

@@ -41,7 +41,7 @@ services:
 > - The API key grants **read access to all archived emails of all accounts**. Treat it like an admin password.
 > - All API requests are recorded in the [Access Log](Logs.md) under the username `API`.
 > - When exposing Mail Archiver through a reverse proxy, use HTTPS so the key is never transmitted in plain text.
-> - The API is read-only: it cannot modify, delete, restore, or send emails, and it never returns account credentials or attachment contents.
+> - The API cannot modify, delete, restore, or send emails, and it never returns account credentials or attachment contents. The only writing endpoint is `POST /api/v1/summaries`, which adds digest entries for the Summaries page.
 
 ## 🔑 Authentication
 
@@ -125,6 +125,30 @@ Use `page`/`hasMore` to paginate through larger result sets.
 ### `GET /api/v1/emails/{id}`
 
 Returns a single email with the **full plain-text body** (derived from the HTML body when no plain-text part was archived) and attachment metadata (file names, types, sizes — never the binary contents). Returns `404` if the id does not exist.
+
+### `POST /api/v1/summaries`
+
+Stores an externally generated digest so it appears on the [Summaries page](AiSummaries.md) in the web UI. This is the only writing endpoint of the API — it can only **add** summary entries and never touches the archived emails. Intended for routines that generate the summary with their own Claude access (e.g. the Claude Code CLI with a Pro/Max subscription) instead of the built-in Anthropic API integration.
+
+```json
+{
+  "overview": "2-3 sentences overview",
+  "items": [
+    {
+      "title": "short topic title",
+      "summary": "1-3 sentence summary",
+      "category": "urgent|action|info|newsletter",
+      "emailIds": [4711, 4712]
+    }
+  ],
+  "emailCount": 17,
+  "model": "claude-code",
+  "periodStartUtc": "2026-06-10T07:00:00Z",
+  "periodEndUtc": "2026-06-11T07:00:00Z"
+}
+```
+
+All fields except `overview`/`items` are optional (`periodEndUtc` defaults to now, `periodStartUtc` to 24 hours earlier, `emailCount` to the number of distinct linked ids). Email ids that do not exist in the archive are dropped; unknown categories become `info`. Returns `201` with the new summary id. See the [AI Mail Summaries Guide](AiSummaries.md) for a complete cron script.
 
 ## 🤖 Daily Email Summary with Claude
 

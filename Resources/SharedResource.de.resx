@@ -2532,7 +2532,7 @@
     <value>Die Erstellung einer Zusammenfassung kann bis zu einer Minute dauern.</value>
   </data>
   <data name="SummariesDisabledWarning" xml:space="preserve">
-    <value>KI-Zusammenfassungen sind deaktiviert. Setzen Sie Summary__Enabled=true und konfigurieren Sie Summary__AnthropicApiKey, um sie zu aktivieren.</value>
+    <value>KI-Zusammenfassungen sind noch nicht eingerichtet. Entweder Summary__Enabled=true mit Summary__AnthropicApiKey setzen oder Zusammenfassungen von einer externen Routine (z. B. Claude Code) über POST /api/v1/summaries einliefern - siehe doc/AiSummaries.md.</value>
   </data>
   <data name="SummariesScheduleInfo" xml:space="preserve">
     <value>Eine neue Zusammenfassung wird automatisch täglich um {0} Uhr erstellt.</value>

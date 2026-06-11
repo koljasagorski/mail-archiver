@@ -244,6 +244,87 @@ namespace MailArchiver.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Stores an externally generated summary so it appears on the Summaries page.
+        /// Intended for routines that produce the digest with their own Claude access
+        /// (e.g. a cron job using the Claude Code CLI) instead of the built-in
+        /// Anthropic API integration. See doc/AiSummaries.md.
+        /// </summary>
+        [HttpPost("summaries")]
+        public async Task<ActionResult> PostSummary([FromBody] ApiSummarySubmission submission)
+        {
+            var periodEnd = NormalizeToUtc(submission.PeriodEndUtc ?? DateTime.UtcNow);
+            var periodStart = NormalizeToUtc(submission.PeriodStartUtc ?? periodEnd.AddHours(-24));
+            if (periodStart >= periodEnd)
+            {
+                return BadRequest(new { error = "periodStartUtc must be before periodEndUtc." });
+            }
+
+            var items = submission.Items ?? new List<ApiSummarySubmissionItem>();
+            if (items.Count > 100)
+            {
+                return BadRequest(new { error = "A summary may contain at most 100 items." });
+            }
+
+            // Resolve linked email ids against the archive; unknown ids are dropped silently
+            var requestedIds = items
+                .SelectMany(i => i.EmailIds ?? new List<int>())
+                .Distinct()
+                .Take(500)
+                .ToList();
+
+            var knownEmails = await _context.ArchivedEmails
+                .AsNoTracking()
+                .Where(e => requestedIds.Contains(e.Id))
+                .Select(e => new { e.Id, e.Subject, e.From })
+                .ToDictionaryAsync(e => e.Id);
+
+            var summaryItems = items.Select(i => new SummaryItem
+            {
+                Title = Truncate(i.Title?.Trim() ?? string.Empty, 300),
+                Text = Truncate(i.Summary?.Trim() ?? string.Empty, 4000),
+                Category = SummaryItemCategory.Normalize(i.Category),
+                Emails = (i.EmailIds ?? new List<int>())
+                    .Distinct()
+                    .Where(knownEmails.ContainsKey)
+                    .Select(id => new SummaryItemEmail
+                    {
+                        Id = id,
+                        Subject = string.IsNullOrWhiteSpace(knownEmails[id].Subject) ? $"(#{id})" : knownEmails[id].Subject,
+                        From = knownEmails[id].From ?? string.Empty
+                    })
+                    .ToList()
+            })
+            .OrderBy(i => SummaryItemCategory.SortOrder(i.Category))
+            .ToList();
+
+            var summary = new DailySummary
+            {
+                PeriodStartUtc = periodStart,
+                PeriodEndUtc = periodEnd,
+                CreatedAtUtc = DateTime.UtcNow,
+                EmailCount = submission.EmailCount ?? knownEmails.Count,
+                OverviewText = Truncate(submission.Overview?.Trim() ?? string.Empty, 8000),
+                Model = Truncate(string.IsNullOrWhiteSpace(submission.Model) ? "external" : submission.Model.Trim(), 100),
+                IsSuccess = true
+            };
+            summary.SetItems(summaryItems);
+
+            _context.DailySummaries.Add(summary);
+            await _context.SaveChangesAsync();
+
+            await _accessLogService.LogAccessAsync(
+                ApiUsername,
+                AccessLogType.Search,
+                searchParameters: $"External AI summary submitted for {periodStart:O} - {periodEnd:O}: " +
+                                  $"{summary.EmailCount} emails, {summaryItems.Count} items, model={summary.Model}");
+
+            return CreatedAtAction(nameof(PostSummary), new { id = summary.Id }, new { id = summary.Id });
+        }
+
+        private static string Truncate(string value, int maxLength)
+            => value.Length <= maxLength ? value : value.Substring(0, maxLength);
+
         private string? BuildBodyPreview(string? body, string? htmlBody)
         {
             var text = !string.IsNullOrWhiteSpace(body)
