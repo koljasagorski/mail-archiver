@@ -158,6 +158,12 @@ namespace MailArchiver.Services
 
             var language = string.IsNullOrWhiteSpace(_options.Language) ? "en" : _options.Language;
 
+            var customInstructions = string.IsNullOrWhiteSpace(_options.CustomInstructions)
+                ? string.Empty
+                : "\n                Additional instructions from the archive owner (follow them strictly, " +
+                  "they take precedence over the rules above):\n                " +
+                  _options.CustomInstructions.Trim() + "\n";
+
             return $$"""
                 You are the daily digest writer of a personal email archive. Below are the archived
                 emails of the last {{Math.Max(1, _options.PeriodHours)}} hours as a JSON array.
@@ -185,7 +191,7 @@ namespace MailArchiver.Services
                 - emailIds must only contain ids that appear in the input data.
                 - Combine all newsletters/promotions into a single item at the end unless one of them is genuinely important.
                 - Do not invent content that is not supported by the emails.
-
+                {{customInstructions}}
                 Emails:
                 {{emailsJson}}
                 """;

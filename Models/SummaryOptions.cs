@@ -32,6 +32,13 @@ namespace MailArchiver.Models
         public string Language { get; set; } = "en";
 
         /// <summary>
+        /// Optional additional instructions appended to the summarization prompt,
+        /// e.g. to exclude certain topics ("Ignore all client-related emails,
+        /// only summarize internal topics like HR and IT").
+        /// </summary>
+        public string? CustomInstructions { get; set; }
+
+        /// <summary>
         /// Maximum number of emails (newest first) included in one summary.
         /// </summary>
         public int MaxEmails { get; set; } = 100;
