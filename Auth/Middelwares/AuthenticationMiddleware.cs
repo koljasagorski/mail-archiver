@@ -20,8 +20,10 @@ namespace MailArchiver.Auth.Middlewares
             // Skip authentication for certain paths
             var path = context.Request.Path.Value?.ToLower() ?? string.Empty;
             var skipPaths = new[] { "/auth/login", "/auth/logout", "/auth/blocked", "/oidc-signin-completed", "/twofactor/", "/css/", "/js/", "/images/", "/favicon" };
-            
-            var shouldSkip = skipPaths.Any(skipPath => path.StartsWith(skipPath));
+
+            // REST API endpoints use their own API key authentication (ApiKeyRequiredAttribute)
+            // instead of cookie authentication, so they must not be redirected to the login page
+            var shouldSkip = skipPaths.Any(skipPath => path.StartsWith(skipPath)) || path.StartsWith("/api/");
 
             if (!shouldSkip)
             {

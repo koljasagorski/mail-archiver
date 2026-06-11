@@ -145,6 +145,19 @@ builder.Services.Configure<BandwidthTrackingOptions>(
 builder.Services.Configure<ReleaseNotesOptions>(
     builder.Configuration.GetSection(ReleaseNotesOptions.ReleaseNotes));
 
+// Add API Options (read-only REST API, e.g. for AI assistants like Claude)
+builder.Services.Configure<ApiOptions>(
+    builder.Configuration.GetSection(ApiOptions.Api));
+
+// Validate API configuration: when enabled, a sufficiently long API key is required
+var apiOptionsConfig = builder.Configuration.GetSection(ApiOptions.Api).Get<ApiOptions>() ?? new ApiOptions();
+if (apiOptionsConfig.Enabled && (string.IsNullOrWhiteSpace(apiOptionsConfig.ApiKey) || apiOptionsConfig.ApiKey.Trim().Length < 32))
+{
+    var logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
+    logger.LogError("The REST API is enabled but 'Api:ApiKey' is missing or shorter than 32 characters. Please configure a strong random key (e.g. via 'openssl rand -base64 48') in appsettings.json or the environment variable Api__ApiKey, or disable the API by setting Api:Enabled to false.");
+    Environment.Exit(1);
+}
+
 // Add DateTimeHelper
 builder.Services.AddScoped<MailArchiver.Utilities.DateTimeHelper>();
 
