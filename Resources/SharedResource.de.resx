@@ -2522,4 +2522,58 @@
   <data name="GotIt" xml:space="preserve">
     <value>Verstanden!</value>
   </data>
+  <data name="AiSummaries" xml:space="preserve">
+    <value>Mail-Zusammenfassungen</value>
+  </data>
+  <data name="GenerateSummaryNow" xml:space="preserve">
+    <value>Jetzt erstellen</value>
+  </data>
+  <data name="GenerateSummaryHint" xml:space="preserve">
+    <value>Die Erstellung einer Zusammenfassung kann bis zu einer Minute dauern.</value>
+  </data>
+  <data name="SummariesDisabledWarning" xml:space="preserve">
+    <value>KI-Zusammenfassungen sind deaktiviert. Setzen Sie Summary__Enabled=true und konfigurieren Sie Summary__AnthropicApiKey, um sie zu aktivieren.</value>
+  </data>
+  <data name="SummariesScheduleInfo" xml:space="preserve">
+    <value>Eine neue Zusammenfassung wird automatisch täglich um {0} Uhr erstellt.</value>
+  </data>
+  <data name="NoSummariesYet" xml:space="preserve">
+    <value>Noch keine Zusammenfassungen vorhanden. Mit „Jetzt erstellen" können Sie die erste anlegen.</value>
+  </data>
+  <data name="NoEmailsInPeriod" xml:space="preserve">
+    <value>Keine neuen E-Mails in diesem Zeitraum.</value>
+  </data>
+  <data name="SummaryCategoryUrgent" xml:space="preserve">
+    <value>Dringend</value>
+  </data>
+  <data name="SummaryCategoryAction" xml:space="preserve">
+    <value>Handlungsbedarf</value>
+  </data>
+  <data name="SummaryCategoryInfo" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="SummaryCategoryNewsletter" xml:space="preserve">
+    <value>Newsletter &amp; Werbung</value>
+  </data>
+  <data name="SummaryFailed" xml:space="preserve">
+    <value>Erstellung der Zusammenfassung fehlgeschlagen</value>
+  </data>
+  <data name="SummaryDeleteConfirm" xml:space="preserve">
+    <value>Diese Zusammenfassung löschen?</value>
+  </data>
+  <data name="SummaryAlreadyRunning" xml:space="preserve">
+    <value>Es wird bereits eine Zusammenfassung erstellt. Bitte versuchen Sie es gleich erneut.</value>
+  </data>
+  <data name="SummaryGeneratedSuccess" xml:space="preserve">
+    <value>Zusammenfassung erfolgreich erstellt ({0} E-Mails).</value>
+  </data>
+  <data name="SummaryGenerationFailed" xml:space="preserve">
+    <value>Erstellung der Zusammenfassung fehlgeschlagen: {0}</value>
+  </data>
+  <data name="SummaryDeleted" xml:space="preserve">
+    <value>Zusammenfassung gelöscht.</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>Erstellt</value>
+  </data>
 </root>

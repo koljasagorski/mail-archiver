@@ -18,6 +18,7 @@ Mail Archiver is a comprehensive application designed to archive emails from var
 
 ### ⚙️ Configuration & Usage
 - [Access Logging](Logs.md)
+- [AI Mail Summaries (Claude)](AiSummaries.md)
 - [Attachment Deduplication](AttachmentDeduplication.md)
 - [REST API & AI Assistant Integration (Claude)](Api.md)
 - [CLI Local Import Guide](CLI-Local-Import.md)

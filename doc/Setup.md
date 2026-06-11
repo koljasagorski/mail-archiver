@@ -99,6 +99,12 @@ services:
       - Api__Enabled=false
       - Api__ApiKey=
 
+      # AI Summary Settings (Optional - daily Claude-generated mail digest, see AiSummaries.md)
+      - Summary__Enabled=false
+      - Summary__AnthropicApiKey=
+      - Summary__Language=en
+      - Summary__DailyExecutionTime=07:00
+
       # Logging Settings (Optional - defaults to Information level)
       - Logging__LogLevel__Default=Information
       - Logging__LogLevel__Microsoft_AspNetCore=Warning
@@ -281,6 +287,18 @@ A read-only JSON API for automation and AI assistants (e.g. daily email summarie
 - `Api__ApiKey`: Secret key clients must send via `Authorization: Bearer <key>` or `X-Api-Key` header. Must be at least 32 characters when the API is enabled (generate one with `openssl rand -base64 48`); the application refuses to start otherwise. The key grants read access to **all** archived emails, so treat it like an admin password.
 - `Api__MaxPageSize`: Maximum number of emails returned per page for list requests. Default is `200`.
 - `Api__BodyPreviewLength`: Maximum characters of the plain-text body preview returned in list results when `includeBody=true` is requested. Default is `2000`.
+
+### 🌟 AI Summary Settings (Daily Mail Digest)
+Generates a daily Claude-written summary of the archived emails, shown on the admin-only Summaries page with direct links to the summarized emails. See the [AI Mail Summaries Guide](AiSummaries.md) for details.
+
+- `Summary__Enabled`: Enable or disable AI mail summaries (true/false). Default is `false`.
+- `Summary__AnthropicApiKey`: Anthropic API key used to call Claude (create one at console.anthropic.com). Required when summaries are enabled.
+- `Summary__Model`: Claude model used for summarization. Default is `claude-sonnet-4-6`.
+- `Summary__DailyExecutionTime`: Time of day (server local time, HH:mm) at which the daily summary is generated. Default is `07:00`.
+- `Summary__Language`: Language the summaries are written in (e.g. `en`, `de`, `fr`). Default is `en`.
+- `Summary__MaxEmails`: Maximum number of emails (newest first) included per summary. Default is `100`.
+- `Summary__MaxBodyCharsPerEmail`: Plain-text body characters per email passed to the model. Default is `1500`.
+- `Summary__PeriodHours`: Period covered by each summary, counted back from generation time. Default is `24`.
 
 ### 🔧 Database Maintenance Settings
 - `DatabaseMaintenance__Enabled`: Enable or disable automatic daily database maintenance (true/false). Default is `false`. When enabled, the system will automatically run VACUUM ANALYZE operations to optimize database performance and prevent bloat. See [Database Maintenance Guide](DatabaseMaintenance.md) for more details.

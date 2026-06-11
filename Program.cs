@@ -158,11 +158,22 @@ if (apiOptionsConfig.Enabled && (string.IsNullOrWhiteSpace(apiOptionsConfig.ApiK
     Environment.Exit(1);
 }
 
+// Add Summary Options (AI-generated daily email summaries)
+builder.Services.Configure<SummaryOptions>(
+    builder.Configuration.GetSection(SummaryOptions.Summary));
+
 // Add DateTimeHelper
 builder.Services.AddScoped<MailArchiver.Utilities.DateTimeHelper>();
 
 // Add HTTP Client factory (used by VersionUpdateService for GitHub API calls)
 builder.Services.AddHttpClient("GitHubReleases");
+
+// HTTP client for the Anthropic (Claude) API used by the AI summary feature
+builder.Services.AddHttpClient("Anthropic", client =>
+{
+    client.BaseAddress = new Uri("https://api.anthropic.com/");
+    client.Timeout = TimeSpan.FromMinutes(3);
+});
 
 // Add Session support
 builder.Services.AddDistributedMemoryCache();
@@ -383,6 +394,10 @@ builder.Services.AddHostedService<AttachmentDeduplicationBackgroundService>();
 
 // Register AccessLogService
 builder.Services.AddScoped<IAccessLogService, AccessLogService>();
+
+// Register AI summary services (daily email summaries via Claude)
+builder.Services.AddScoped<ISummaryService, SummaryService>();
+builder.Services.AddHostedService<SummaryBackgroundService>();
 
 
 // Register VersionUpdateService (release notes / changelog splash screen)

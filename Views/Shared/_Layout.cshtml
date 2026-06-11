@@ -98,6 +98,15 @@
                                 </a>
                             </li>
                         }
+                        @if (AuthService.IsCurrentUserAdmin(Context))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Summaries" ? "active" : "")"
+                                    asp-controller="Summaries" asp-action="Index">
+                                    <i class="bi bi-stars me-1"></i>@Localizer["AiSummaries"]
+                                </a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Logs" ? "active" : "")"
                                 asp-controller="Logs" asp-action="Index">
