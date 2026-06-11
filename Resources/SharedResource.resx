@@ -2506,4 +2506,58 @@
   <data name="GotIt" xml:space="preserve">
     <value>Got it!</value>
   </data>
+  <data name="AiSummaries" xml:space="preserve">
+    <value>Mail Summaries</value>
+  </data>
+  <data name="GenerateSummaryNow" xml:space="preserve">
+    <value>Generate now</value>
+  </data>
+  <data name="GenerateSummaryHint" xml:space="preserve">
+    <value>Generating a summary can take up to a minute.</value>
+  </data>
+  <data name="SummariesDisabledWarning" xml:space="preserve">
+    <value>AI summaries are disabled. Set Summary__Enabled=true and configure Summary__AnthropicApiKey to enable them.</value>
+  </data>
+  <data name="SummariesScheduleInfo" xml:space="preserve">
+    <value>A new summary is generated automatically every day at {0}.</value>
+  </data>
+  <data name="NoSummariesYet" xml:space="preserve">
+    <value>No summaries yet. Use "Generate now" to create the first one.</value>
+  </data>
+  <data name="NoEmailsInPeriod" xml:space="preserve">
+    <value>No new emails in this period.</value>
+  </data>
+  <data name="SummaryCategoryUrgent" xml:space="preserve">
+    <value>Urgent</value>
+  </data>
+  <data name="SummaryCategoryAction" xml:space="preserve">
+    <value>Action needed</value>
+  </data>
+  <data name="SummaryCategoryInfo" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="SummaryCategoryNewsletter" xml:space="preserve">
+    <value>Newsletters &amp; promotions</value>
+  </data>
+  <data name="SummaryFailed" xml:space="preserve">
+    <value>Summary generation failed</value>
+  </data>
+  <data name="SummaryDeleteConfirm" xml:space="preserve">
+    <value>Delete this summary?</value>
+  </data>
+  <data name="SummaryAlreadyRunning" xml:space="preserve">
+    <value>A summary is already being generated. Please try again in a moment.</value>
+  </data>
+  <data name="SummaryGeneratedSuccess" xml:space="preserve">
+    <value>Summary generated successfully ({0} emails).</value>
+  </data>
+  <data name="SummaryGenerationFailed" xml:space="preserve">
+    <value>Summary generation failed: {0}</value>
+  </data>
+  <data name="SummaryDeleted" xml:space="preserve">
+    <value>Summary deleted.</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>Created</value>
+  </data>
 </root>

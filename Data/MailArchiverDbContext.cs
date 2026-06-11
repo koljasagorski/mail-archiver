@@ -14,6 +14,7 @@ namespace MailArchiver.Data
         public DbSet<AccessLog> AccessLogs { get; set; }
         public DbSet<BandwidthUsage> BandwidthUsages { get; set; }
         public DbSet<SyncCheckpoint> SyncCheckpoints { get; set; }
+        public DbSet<DailySummary> DailySummaries { get; set; }
 
         public MailArchiverDbContext(DbContextOptions<MailArchiverDbContext> options)
             : base(options)
@@ -305,6 +306,28 @@ namespace MailArchiver.Data
                 .WithMany()
                 .HasForeignKey(b => b.MailAccountId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // DailySummary entity configuration (AI-generated email summaries)
+            modelBuilder.Entity<DailySummary>()
+                .Property(s => s.OverviewText)
+                .HasColumnType("text");
+
+            modelBuilder.Entity<DailySummary>()
+                .Property(s => s.ItemsJson)
+                .HasColumnType("text");
+
+            modelBuilder.Entity<DailySummary>()
+                .Property(s => s.Model)
+                .HasMaxLength(100);
+
+            modelBuilder.Entity<DailySummary>()
+                .Property(s => s.ErrorMessage)
+                .HasColumnType("text")
+                .IsRequired(false);
+
+            modelBuilder.Entity<DailySummary>()
+                .HasIndex(s => s.CreatedAtUtc)
+                .HasDatabaseName("IX_DailySummaries_CreatedAtUtc");
 
             // SyncCheckpoint entity configuration
             modelBuilder.Entity<SyncCheckpoint>()
