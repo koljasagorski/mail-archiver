@@ -28,6 +28,7 @@
 - Preview emails with attachment list
 - Export entire mail accounts as mbox files or zipped EML archives
 - Export selected individual emails or email batches
+- Read-only REST API for automation and AI assistants, e.g. daily email summaries with Claude ([API Guide](doc/Api.md))
 
 ### 👥 User Management
 - Multi-user support with account-specific permissions

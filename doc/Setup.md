@@ -95,6 +95,10 @@ services:
       # ReleaseNotes Settings (Version Update Splash Screen)
       - ReleaseNotes__Enabled=true
 
+      # REST API Settings (Optional - read-only API for automation and AI assistants, see Api.md)
+      - Api__Enabled=false
+      - Api__ApiKey=
+
       # Logging Settings (Optional - defaults to Information level)
       - Logging__LogLevel__Default=Information
       - Logging__LogLevel__Microsoft_AspNetCore=Warning
@@ -269,6 +273,14 @@ docker compose restart
 
 ### 🎉 ReleaseNotes Settings (Version Update Splash Screen)
 - `ReleaseNotes__Enabled`: Enable or disable the version update splash screen (true/false). Default is `true`. When enabled, administrators will see a one-time changelog modal after an application update, showing the release notes fetched from GitHub Releases for the current version. Each administrator can dismiss the modal, and it will only reappear for a new version. Set to `false` to completely disable this feature.
+
+### 🤖 REST API Settings (AI Assistant Integration)
+A read-only JSON API for automation and AI assistants (e.g. daily email summaries with Claude). See the [REST API & AI Assistant Integration Guide](Api.md) for endpoints and usage examples.
+
+- `Api__Enabled`: Enable or disable the read-only REST API (true/false). Default is `false`.
+- `Api__ApiKey`: Secret key clients must send via `Authorization: Bearer <key>` or `X-Api-Key` header. Must be at least 32 characters when the API is enabled (generate one with `openssl rand -base64 48`); the application refuses to start otherwise. The key grants read access to **all** archived emails, so treat it like an admin password.
+- `Api__MaxPageSize`: Maximum number of emails returned per page for list requests. Default is `200`.
+- `Api__BodyPreviewLength`: Maximum characters of the plain-text body preview returned in list results when `includeBody=true` is requested. Default is `2000`.
 
 ### 🔧 Database Maintenance Settings
 - `DatabaseMaintenance__Enabled`: Enable or disable automatic daily database maintenance (true/false). Default is `false`. When enabled, the system will automatically run VACUUM ANALYZE operations to optimize database performance and prevent bloat. See [Database Maintenance Guide](DatabaseMaintenance.md) for more details.
