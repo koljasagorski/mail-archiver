@@ -271,7 +271,7 @@ namespace MailArchiver.Services
                         {
                             Title = itemElement.TryGetProperty("title", out var title) ? title.GetString() ?? "" : "",
                             Text = itemElement.TryGetProperty("summary", out var text) ? text.GetString() ?? "" : "",
-                            Category = NormalizeCategory(itemElement.TryGetProperty("category", out var cat) ? cat.GetString() : null)
+                            Category = SummaryItemCategory.Normalize(itemElement.TryGetProperty("category", out var cat) ? cat.GetString() : null)
                         };
 
                         if (itemElement.TryGetProperty("emailIds", out var ids) && ids.ValueKind == JsonValueKind.Array)
@@ -306,14 +306,6 @@ namespace MailArchiver.Services
                 summary.OverviewText = responseText.Trim();
             }
         }
-
-        private static string NormalizeCategory(string? category) => category?.Trim().ToLowerInvariant() switch
-        {
-            SummaryItemCategory.Urgent => SummaryItemCategory.Urgent,
-            SummaryItemCategory.Action => SummaryItemCategory.Action,
-            SummaryItemCategory.Newsletter => SummaryItemCategory.Newsletter,
-            _ => SummaryItemCategory.Info
-        };
 
         private static string StripMarkdownFences(string text)
         {

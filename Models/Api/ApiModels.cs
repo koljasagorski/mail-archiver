@@ -77,4 +77,40 @@ namespace MailArchiver.Models.Api
         public string ContentType { get; set; } = string.Empty;
         public long Size { get; set; }
     }
+
+    /// <summary>
+    /// Payload for POST /api/v1/summaries: lets an external routine (e.g. a cron job
+    /// using the Claude Code CLI with a subscription instead of an API key) push a
+    /// finished digest onto the Summaries page.
+    /// </summary>
+    public class ApiSummarySubmission
+    {
+        /// <summary>Start of the summarized period (UTC). Defaults to PeriodEndUtc minus 24 hours.</summary>
+        public DateTime? PeriodStartUtc { get; set; }
+
+        /// <summary>End of the summarized period (UTC). Defaults to now.</summary>
+        public DateTime? PeriodEndUtc { get; set; }
+
+        /// <summary>Number of emails covered. Defaults to the number of distinct linked email ids.</summary>
+        public int? EmailCount { get; set; }
+
+        /// <summary>Label of the model/tool that produced the summary (shown on the page).</summary>
+        public string? Model { get; set; }
+
+        public string? Overview { get; set; }
+
+        public List<ApiSummarySubmissionItem>? Items { get; set; }
+    }
+
+    public class ApiSummarySubmissionItem
+    {
+        public string? Title { get; set; }
+        public string? Summary { get; set; }
+
+        /// <summary>One of: urgent, action, info, newsletter. Unknown values become "info".</summary>
+        public string? Category { get; set; }
+
+        /// <summary>Ids of archived emails this topic covers; unknown ids are ignored.</summary>
+        public List<int>? EmailIds { get; set; }
+    }
 }

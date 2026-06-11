@@ -2516,7 +2516,7 @@
     <value>Generating a summary can take up to a minute.</value>
   </data>
   <data name="SummariesDisabledWarning" xml:space="preserve">
-    <value>AI summaries are disabled. Set Summary__Enabled=true and configure Summary__AnthropicApiKey to enable them.</value>
+    <value>AI summaries are not configured yet. Either set Summary__Enabled=true with Summary__AnthropicApiKey, or push summaries from an external routine (e.g. Claude Code) via POST /api/v1/summaries - see doc/AiSummaries.md.</value>
   </data>
   <data name="SummariesScheduleInfo" xml:space="preserve">
     <value>A new summary is generated automatically every day at {0}.</value>

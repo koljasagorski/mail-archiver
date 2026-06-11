@@ -50,6 +50,69 @@ Summaries are stored in the database (`DailySummaries` table), so the history st
 
 The page is **admin-only** because summaries cover the emails of all archived accounts. All generation runs are recorded in the [Access Log](Logs.md).
 
+## 🧑‍💻 Without an API key: Claude Code + cron
+
+If you have a Claude **Pro/Max subscription** but no Anthropic API key, you can generate the summaries with the [Claude Code CLI](https://code.claude.com/docs) instead and push them onto the Summaries page via `POST /api/v1/summaries` (requires the [REST API](Api.md) to be enabled). The page renders them exactly like built-in summaries; leave `Summary__Enabled=false` in this setup.
+
+One-time setup on the machine that runs the cron job (can be the Mail Archiver host itself):
+
+```bash
+# Install the Claude Code CLI and jq
+curl -fsSL https://claude.ai/install.sh | bash
+apt install -y jq
+
+# Log in once with your Claude subscription (prints a URL to open in a browser)
+claude
+# then type /login and follow the instructions, exit afterwards
+```
+
+Create `/usr/local/bin/mail-summary.sh` (`chmod 700`):
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+ARCHIVE_URL="http://localhost:5000"          # your Mail Archiver URL
+API_KEY="<your-mail-archiver-api-key>"       # the Api__ApiKey of the REST API
+LANGUAGE="en"                                # language of the summaries
+
+MAILS=$(curl -sf --max-time 60 -H "X-Api-Key: $API_KEY" \
+  "$ARCHIVE_URL/api/v1/emails?sinceHours=24&includeBody=true&pageSize=100")
+COUNT=$(jq -r '.totalCount' <<<"$MAILS")
+
+if [ "$COUNT" -eq 0 ]; then
+  RESULT='{"overview":"","items":[]}'
+else
+  RESULT=$(claude -p "Here are my emails of the last 24 hours as JSON from my mail archive.
+Respond with ONLY a JSON object (no markdown fences, no extra text) in exactly this shape:
+{\"overview\":\"2-3 sentences in $LANGUAGE\",\"items\":[{\"title\":\"...\",\"summary\":\"...\",\"category\":\"urgent|action|info|newsletter\",\"emailIds\":[1,2]}]}
+Rules: group related emails into one item, most important first, combine all newsletters
+into a single item, emailIds only from the input data, write in $LANGUAGE.
+
+$MAILS")
+  # Strip markdown fences in case the model added them anyway
+  if ! jq -e . >/dev/null 2>&1 <<<"$RESULT"; then
+    RESULT=$(sed -e '1{/^```/d}' -e '${/^```$/d}' <<<"$RESULT")
+  fi
+fi
+
+jq -n --argjson r "$RESULT" --argjson c "$COUNT" \
+  '{overview: $r.overview, items: $r.items, emailCount: $c, model: "claude-code"}' \
+| curl -sf --max-time 60 -X POST \
+    -H "X-Api-Key: $API_KEY" -H "Content-Type: application/json" \
+    -d @- "$ARCHIVE_URL/api/v1/summaries"
+```
+
+Schedule it daily:
+
+```cron
+0 7 * * * /usr/local/bin/mail-summary.sh >> /var/log/mail-summary.log 2>&1
+```
+
+> ℹ️ The server validates the submission: unknown email ids are dropped, unknown categories
+> become `info`, and item/text lengths are capped. The submitting tool name (`model` field)
+> is shown in the card footer.
+
 ## 🔒 Privacy note
 
 When enabled, email metadata and (truncated) email text of the summarized period are sent to the Anthropic API for processing. See [Anthropic's privacy documentation](https://privacy.anthropic.com) for details on API data handling. If you do not want this, leave the feature disabled — the [read-only REST API](Api.md) remains available for self-hosted automation alternatives.
