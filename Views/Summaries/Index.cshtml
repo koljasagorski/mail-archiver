@@ -45,6 +45,83 @@
         <p class="text-muted">
             <i class="bi bi-clock me-1"></i>@string.Format(Localizer["SummariesScheduleInfo"].Value, Model.DailyExecutionTime)
         </p>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="bi bi-chat-left-text me-1"></i>@Localizer["AskArchive"]
+                </h6>
+            </div>
+            <div class="card-body">
+                <form id="ask-archive-form">
+                    @Html.AntiForgeryToken()
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="ask-archive-question" maxlength="2000"
+                               placeholder="@Localizer["AskArchivePlaceholder"]" autocomplete="off" />
+                        <button class="btn btn-primary" type="submit" id="ask-archive-btn">
+                            <span class="spinner-border spinner-border-sm me-1 d-none" role="status" aria-hidden="true"></span>
+                            <i class="bi bi-send me-1"></i>@Localizer["AskArchiveButton"]
+                        </button>
+                    </div>
+                    <small class="text-muted">@Localizer["AskArchiveHint"]</small>
+                </form>
+                <div id="ask-archive-result" class="mt-3 d-none border-start border-3 border-primary ps-3"></div>
+            </div>
+        </div>
+
+        <script>
+            (function () {
+                var form = document.getElementById('ask-archive-form');
+                var input = document.getElementById('ask-archive-question');
+                var btn = document.getElementById('ask-archive-btn');
+                var spinner = btn.querySelector('.spinner-border');
+                var resultBox = document.getElementById('ask-archive-result');
+
+                form.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    var question = input.value.trim();
+                    if (!question || btn.disabled) return;
+
+                    btn.disabled = true;
+                    spinner.classList.remove('d-none');
+                    resultBox.classList.remove('d-none');
+                    resultBox.innerHTML = '';
+                    var working = document.createElement('em');
+                    working.className = 'text-muted';
+                    working.textContent = '@Localizer["AskArchiveWorking"]';
+                    resultBox.appendChild(working);
+
+                    try {
+                        var formData = new FormData();
+                        formData.append('question', question);
+                        formData.append('__RequestVerificationToken',
+                            form.querySelector('input[name="__RequestVerificationToken"]').value);
+
+                        var response = await fetch('@Url.Action("Ask")', { method: 'POST', body: formData });
+                        var data = await response.json();
+
+                        if (data.success) {
+                            resultBox.innerHTML = data.answerHtml;
+                        } else {
+                            resultBox.innerHTML = '';
+                            var err = document.createElement('span');
+                            err.className = 'text-danger';
+                            err.textContent = data.error || 'Error';
+                            resultBox.appendChild(err);
+                        }
+                    } catch (ex) {
+                        resultBox.innerHTML = '';
+                        var err2 = document.createElement('span');
+                        err2.className = 'text-danger';
+                        err2.textContent = String(ex);
+                        resultBox.appendChild(err2);
+                    } finally {
+                        btn.disabled = false;
+                        spinner.classList.add('d-none');
+                    }
+                });
+            })();
+        </script>
     }
     else if (!Model.Summaries.Any())
     {

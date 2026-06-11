@@ -2576,4 +2576,22 @@
   <data name="CreatedAt" xml:space="preserve">
     <value>Erstellt</value>
   </data>
+  <data name="AskArchive" xml:space="preserve">
+    <value>Archiv befragen</value>
+  </data>
+  <data name="AskArchivePlaceholder" xml:space="preserve">
+    <value>z. B. Wann wurde das Thema XY zum ersten Mal erwähnt?</value>
+  </data>
+  <data name="AskArchiveButton" xml:space="preserve">
+    <value>Fragen</value>
+  </data>
+  <data name="AskArchiveHint" xml:space="preserve">
+    <value>Claude durchsucht zur Beantwortung das gesamte Archiv. Das kann einige Minuten dauern und verbraucht Anthropic-API-Kontingent.</value>
+  </data>
+  <data name="AskArchiveWorking" xml:space="preserve">
+    <value>Durchsuche das Archiv – das kann einige Minuten dauern…</value>
+  </data>
+  <data name="AskArchiveInvalidQuestion" xml:space="preserve">
+    <value>Bitte eine Frage eingeben (max. 2000 Zeichen).</value>
+  </data>
 </root>

@@ -51,6 +51,17 @@ Summaries are stored in the database (`DailySummaries` table), so the history st
 
 The page is **admin-only** because summaries cover the emails of all archived accounts. All generation runs are recorded in the [Access Log](Logs.md).
 
+## ❓ Ask the archive (free-form questions)
+
+When the built-in integration is configured (`Enabled` + `AnthropicApiKey`), the Summaries page also shows an **"Ask the archive"** box. Type any question — e.g. *"When was project XY first mentioned?"* or *"What did the landlord write about the heating issue?"* — and Claude answers it by **searching the archive itself**: it is given the full-text search (including oldest-first sorting for "first mention" questions) and a single-email reader as tools, and iterates until it finds the answer. Emails it relied on are cited as clickable links to the email details page.
+
+Notes:
+
+- The archive is **not** uploaded to the API — only the search results and the (truncated) emails Claude chooses to read are transmitted. `CustomInstructions` does not apply here; the question itself controls what is searched.
+- A question typically triggers several searches and email reads, so it can take a couple of minutes and costs more than a daily summary (still cents per question).
+- `MaxQuestionIterations` (default `10`) caps how many tool rounds Claude may use per question.
+- Questions are recorded in the access log with the asking user.
+
 ## 🧑‍💻 Without an API key: Claude Code + cron
 
 If you have a Claude **Pro/Max subscription** but no Anthropic API key, you can generate the summaries with the [Claude Code CLI](https://code.claude.com/docs) instead and push them onto the Summaries page via `POST /api/v1/summaries` (requires the [REST API](Api.md) to be enabled). The page renders them exactly like built-in summaries; leave `Summary__Enabled=false` in this setup.

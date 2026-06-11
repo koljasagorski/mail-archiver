@@ -57,5 +57,11 @@ namespace MailArchiver.Models
         /// Maximum tokens the model may use for the summary response.
         /// </summary>
         public int MaxOutputTokens { get; set; } = 4000;
+
+        /// <summary>
+        /// Maximum number of tool-use rounds (searches / email reads) Claude may
+        /// perform when answering a free-form question on the Summaries page.
+        /// </summary>
+        public int MaxQuestionIterations { get; set; } = 10;
     }
 }

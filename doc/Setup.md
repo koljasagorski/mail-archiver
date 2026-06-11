@@ -300,6 +300,7 @@ Generates a daily Claude-written summary of the archived emails, shown on the ad
 - `Summary__MaxEmails`: Maximum number of emails (newest first) included per summary. Default is `100`.
 - `Summary__MaxBodyCharsPerEmail`: Plain-text body characters per email passed to the model. Default is `1500`.
 - `Summary__PeriodHours`: Period covered by each summary, counted back from generation time. Default is `24`.
+- `Summary__MaxQuestionIterations`: Maximum number of tool rounds (archive searches / email reads) Claude may use per free-form question on the Summaries page. Default is `10`.
 
 ### 🔧 Database Maintenance Settings
 - `DatabaseMaintenance__Enabled`: Enable or disable automatic daily database maintenance (true/false). Default is `false`. When enabled, the system will automatically run VACUUM ANALYZE operations to optimize database performance and prevent bloat. See [Database Maintenance Guide](DatabaseMaintenance.md) for more details.
