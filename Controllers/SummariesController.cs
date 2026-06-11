@@ -22,6 +22,8 @@ namespace MailArchiver.Controllers
 
         private readonly MailArchiverDbContext _context;
         private readonly ISummaryService _summaryService;
+        private readonly IArchiveQuestionService _questionService;
+        private readonly IAccessLogService _accessLogService;
         private readonly IAuthenticationService _authenticationService;
         private readonly SummaryOptions _options;
         private readonly IStringLocalizer<SharedResource> _localizer;
@@ -30,6 +32,8 @@ namespace MailArchiver.Controllers
         public SummariesController(
             MailArchiverDbContext context,
             ISummaryService summaryService,
+            IArchiveQuestionService questionService,
+            IAccessLogService accessLogService,
             IAuthenticationService authenticationService,
             IOptions<SummaryOptions> options,
             IStringLocalizer<SharedResource> localizer,
@@ -37,6 +41,8 @@ namespace MailArchiver.Controllers
         {
             _context = context;
             _summaryService = summaryService;
+            _questionService = questionService;
+            _accessLogService = accessLogService;
             _authenticationService = authenticationService;
             _options = options.Value;
             _localizer = localizer;
@@ -105,6 +111,63 @@ namespace MailArchiver.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        /// <summary>
+        /// Answers a free-form question about the archive ("Ask the archive" box).
+        /// Claude searches the archive iteratively via tools; the answer cites
+        /// emails as [#id], which are rendered as links to the email details page.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Ask(string question)
+        {
+            if (!_options.Enabled || string.IsNullOrWhiteSpace(_options.AnthropicApiKey))
+            {
+                return Json(new { success = false, error = _localizer["SummariesDisabledWarning"].Value });
+            }
+
+            question = question?.Trim() ?? string.Empty;
+            if (question.Length == 0 || question.Length > 2000)
+            {
+                return Json(new { success = false, error = _localizer["AskArchiveInvalidQuestion"].Value });
+            }
+
+            var username = _authenticationService.GetCurrentUserDisplayName(HttpContext) ?? "Admin";
+            _logger.LogInformation("Archive question by {User}: {Question}", username, question);
+
+            var result = await _questionService.AskAsync(question, HttpContext.RequestAborted);
+
+            await _accessLogService.LogAccessAsync(
+                username,
+                AccessLogType.Search,
+                searchParameters: $"AI archive question ({result.ToolCalls} tool calls, success={result.Success}): {Truncate(question, 300)}");
+
+            if (!result.Success)
+            {
+                return Json(new { success = false, error = result.Error });
+            }
+
+            return Json(new { success = true, answerHtml = RenderAnswerHtml(result.Answer) });
+        }
+
+        /// <summary>
+        /// HTML-encodes the answer and turns [#id] citations into links to the email details page.
+        /// Encoding happens first, so only the links we generate end up as markup.
+        /// </summary>
+        private string RenderAnswerHtml(string answer)
+        {
+            var encoded = System.Net.WebUtility.HtmlEncode(answer);
+            encoded = System.Text.RegularExpressions.Regex.Replace(encoded, @"\[#(\d{1,9})\]", match =>
+            {
+                var id = match.Groups[1].Value;
+                var url = Url.Action("Details", "Emails", new { id });
+                return $"<a href=\"{url}\" class=\"text-decoration-none\"><i class=\"bi bi-envelope-open\"></i>&nbsp;#{id}</a>";
+            });
+            return encoded.Replace("\n", "<br>");
+        }
+
+        private static string Truncate(string value, int maxLength)
+            => value.Length <= maxLength ? value : value.Substring(0, maxLength) + "…";
 
         [HttpPost]
         [ValidateAntiForgeryToken]

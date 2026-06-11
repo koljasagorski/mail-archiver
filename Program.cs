@@ -397,6 +397,7 @@ builder.Services.AddScoped<IAccessLogService, AccessLogService>();
 
 // Register AI summary services (daily email summaries via Claude)
 builder.Services.AddScoped<ISummaryService, SummaryService>();
+builder.Services.AddScoped<IArchiveQuestionService, ArchiveQuestionService>();
 builder.Services.AddHostedService<SummaryBackgroundService>();
 
 
