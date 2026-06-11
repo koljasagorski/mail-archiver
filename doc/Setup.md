@@ -296,6 +296,7 @@ Generates a daily Claude-written summary of the archived emails, shown on the ad
 - `Summary__Model`: Claude model used for summarization. Default is `claude-sonnet-4-6`.
 - `Summary__DailyExecutionTime`: Time of day (server local time, HH:mm) at which the daily summary is generated. Default is `07:00`.
 - `Summary__Language`: Language the summaries are written in (e.g. `en`, `de`, `fr`). Default is `en`.
+- `Summary__CustomInstructions`: Optional additional instructions appended to the summarization prompt, e.g. to exclude certain topics ("Ignore all client-related emails, only summarize internal topics like HR and IT"). Empty by default.
 - `Summary__MaxEmails`: Maximum number of emails (newest first) included per summary. Default is `100`.
 - `Summary__MaxBodyCharsPerEmail`: Plain-text body characters per email passed to the model. Default is `1500`.
 - `Summary__PeriodHours`: Period covered by each summary, counted back from generation time. Default is `24`.

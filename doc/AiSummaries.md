@@ -27,6 +27,7 @@ services:
 | `Model` | `claude-sonnet-4-6` | Claude model used for summarization. |
 | `DailyExecutionTime` | `07:00` | Time of day (server local time, `HH:mm`) at which the daily summary is generated. |
 | `Language` | `en` | Language the summaries are written in (e.g. `de`, `fr`, `es`). |
+| `CustomInstructions` | _(empty)_ | Optional additional instructions appended to the summarization prompt — e.g. to exclude topics: `Ignore all client-related emails entirely; only summarize internal topics such as HR, IT, organization and events.` Note that excluded emails are still **sent** to the API, just not included in the summary; to keep content from being transmitted at all, the emails must not be in the summarized accounts/period. |
 | `MaxEmails` | `100` | Maximum number of emails (newest first) included per summary. |
 | `MaxBodyCharsPerEmail` | `1500` | Plain-text body characters per email passed to the model. |
 | `PeriodHours` | `24` | Period covered by each summary, counted back from generation time. |
