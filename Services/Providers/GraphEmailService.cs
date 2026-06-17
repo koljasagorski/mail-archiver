@@ -15,6 +15,7 @@ namespace MailArchiver.Services.Providers
     {
         private readonly GraphMailSyncService _syncService;
         private readonly GraphMailRestorer _restorer;
+        private readonly GraphMailDeleter _deleter;
         private readonly GraphAuthClientFactory _authFactory;
         private readonly IGraphFolderService _folderService;
         private readonly EmailCoreService _coreService;
@@ -23,6 +24,7 @@ namespace MailArchiver.Services.Providers
         public GraphEmailService(
             GraphMailSyncService syncService,
             GraphMailRestorer restorer,
+            GraphMailDeleter deleter,
             GraphAuthClientFactory authFactory,
             IGraphFolderService folderService,
             EmailCoreService coreService,
@@ -30,6 +32,7 @@ namespace MailArchiver.Services.Providers
         {
             _syncService = syncService;
             _restorer = restorer;
+            _deleter = deleter;
             _authFactory = authFactory;
             _folderService = folderService;
             _coreService = coreService;
@@ -54,6 +57,9 @@ namespace MailArchiver.Services.Providers
 
         public async Task<bool> RestoreEmailToFolderAsync(ArchivedEmail email, MailAccount targetAccount, string folderName, bool preserveFolderStructure)
             => await _restorer.RestoreEmailToFolderAsync(email, targetAccount, folderName, preserveFolderStructure);
+
+        public Task<MailboxDeletionResult> DeleteEmailFromMailboxAsync(ArchivedEmail email, MailAccount account)
+            => _deleter.DeleteEmailFromMailboxAsync(email, account);
 
         // ========================================
         // IProviderEmailService (ID-based wrappers)
