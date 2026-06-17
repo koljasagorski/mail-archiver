@@ -2189,6 +2189,27 @@
   <data name="DeleteEmailConfirm" xml:space="preserve">
     <value>Sind Sie sicher, dass Sie diese E-Mail dauerhaft löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden und wird zu Prüfzwecken protokolliert.</value>
   </data>
+  <data name="DeleteFromMailbox" xml:space="preserve">
+    <value>Auf M365 löschen</value>
+  </data>
+  <data name="DeleteFromMailboxTitle" xml:space="preserve">
+    <value>Auf Microsoft 365 löschen</value>
+  </data>
+  <data name="DeleteFromMailboxConfirm" xml:space="preserve">
+    <value>Sind Sie sicher, dass Sie diese E-Mail aus dem aktiven Microsoft 365-Postfach löschen möchten? Die Nachricht wird auf dem Server in den Ordner "Gelöschte Elemente" verschoben. Ihre archivierte Kopie bleibt erhalten.</value>
+  </data>
+  <data name="DeleteFromMailboxSuccess" xml:space="preserve">
+    <value>Die E-Mail wurde aus dem Microsoft 365-Postfach gelöscht.</value>
+  </data>
+  <data name="DeleteFromMailboxNotFound" xml:space="preserve">
+    <value>Die E-Mail wurde im Microsoft 365-Postfach nicht gefunden. Möglicherweise wurde sie bereits gelöscht.</value>
+  </data>
+  <data name="DeleteFromMailboxError" xml:space="preserve">
+    <value>Beim Löschen der E-Mail aus dem Microsoft 365-Postfach ist ein Fehler aufgetreten. Bitte prüfen Sie die Logs.</value>
+  </data>
+  <data name="DeleteFromMailboxNotM365" xml:space="preserve">
+    <value>Diese E-Mail kann nicht aus einem Microsoft 365-Postfach gelöscht werden, da sie nicht von einem M365-Konto archiviert wurde.</value>
+  </data>
   <data name="DeleteSelected" xml:space="preserve">
     <value>Ausgewählte Löschen</value>
   </data>

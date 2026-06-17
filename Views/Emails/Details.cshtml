@@ -4,6 +4,8 @@
 @{
     ViewData["Title"] = @Localizer["EmailDetails"];
     var returnUrl = ViewBag.ReturnUrl?.ToString() ?? Url.Action("Index");
+    var canManageEmail = User.IsInRole("Admin") || User.IsInRole("SelfManager");
+    var isM365Email = Model.Email.MailAccount?.Provider == MailArchiver.Models.ProviderType.M365;
 }
 
 <div class="container-fluid">
@@ -32,10 +34,16 @@
                     asp-route-returnUrl="@Context.Request.GetDisplayUrl()" class="btn btn-success btn-sm">
                     <i class="bi bi-envelope-arrow-up"></i> @Localizer["CopyToMailbox"]
                 </a>
-                @if (User.IsInRole("Admin") || User.IsInRole("SelfManager"))
+                @if (canManageEmail)
                 {
                     <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteEmailModal">
                         <i class="bi bi-trash"></i> @Localizer["DeleteEmail"]
+                    </button>
+                }
+                @if (canManageEmail && isM365Email)
+                {
+                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteFromMailboxModal">
+                        <i class="bi bi-cloud-minus"></i> @Localizer["DeleteFromMailbox"]
                     </button>
                 }
             </div>
@@ -61,10 +69,16 @@
                 asp-route-returnUrl="@Context.Request.GetDisplayUrl()" class="btn btn-success">
                 <i class="bi bi-envelope-arrow-up"></i> @Localizer["CopyToMailbox"]
             </a>
-            @if (User.IsInRole("Admin") || User.IsInRole("SelfManager"))
+            @if (canManageEmail)
             {
                 <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEmailModal">
                     <i class="bi bi-trash"></i> @Localizer["DeleteEmail"]
+                </button>
+            }
+            @if (canManageEmail && isM365Email)
+            {
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteFromMailboxModal">
+                    <i class="bi bi-cloud-minus"></i> @Localizer["DeleteFromMailbox"]
                 </button>
             }
         </div>
@@ -282,6 +296,31 @@
                     <form asp-action="Delete" asp-route-id="@Model.Email.Id" asp-route-returnUrl="@returnUrl" method="post">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-danger">@Localizer["DeleteButton"]</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Delete from M365 Mailbox Modal -->
+@if (canManageEmail && isM365Email)
+{
+    <div class="modal fade" id="deleteFromMailboxModal" tabindex="-1" aria-labelledby="deleteFromMailboxModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteFromMailboxModalLabel">@Localizer["DeleteFromMailboxTitle"]</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>@Localizer["DeleteFromMailboxConfirm"]</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
+                    <form asp-action="DeleteFromMailbox" asp-route-id="@Model.Email.Id" asp-route-returnUrl="@returnUrl" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">@Localizer["DeleteFromMailbox"]</button>
                     </form>
                 </div>
             </div>

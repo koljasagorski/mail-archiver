@@ -4,6 +4,7 @@ using MailArchiver.Models;
 using MailArchiver.Models.ViewModels;
 using MailArchiver.Services;
 using MailArchiver.Services.Providers;
+using MailArchiver.Services.Providers.Graph;
 using MailArchiver.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -2503,7 +2504,80 @@ namespace MailArchiver.Controllers
             
             return Redirect(returnUrl ?? Url.Action("Index"));
         }
-        
+
+        // POST: Emails/DeleteFromMailbox
+        // Deletes the original email from the live Microsoft 365 mailbox (moves it to Deleted Items
+        // on the server). The local archive copy is intentionally kept.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [SelfManagerRequired]
+        public async Task<IActionResult> DeleteFromMailbox(int id, string returnUrl = null)
+        {
+            _logger.LogInformation("User requesting to delete email ID {EmailId} from the live M365 mailbox", id);
+
+            var email = await _context.ArchivedEmails
+                .Include(e => e.MailAccount)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (email == null)
+            {
+                _logger.LogWarning("Email with ID {EmailId} not found for M365 mailbox deletion", id);
+                TempData["ErrorMessage"] = _localizer["EmailNotFound"].Value;
+                return Redirect(returnUrl ?? Url.Action("Index"));
+            }
+
+            var account = email.MailAccount;
+            if (account == null || account.Provider != ProviderType.M365)
+            {
+                _logger.LogWarning("Email {EmailId} does not belong to an M365 account; cannot delete from mailbox", id);
+                TempData["ErrorMessage"] = _localizer["DeleteFromMailboxNotM365"].Value;
+                return RedirectToAction(nameof(Details), new { id, returnUrl });
+            }
+
+            try
+            {
+                var result = await _graphEmailService.DeleteEmailFromMailboxAsync(email, account);
+
+                switch (result)
+                {
+                    case MailboxDeletionResult.Deleted:
+                        _logger.LogInformation("Email {EmailId} deleted from M365 mailbox {Mailbox}", id, account.EmailAddress);
+                        TempData["SuccessMessage"] = _localizer["DeleteFromMailboxSuccess"].Value;
+
+                        // Log the server-side deletion action
+                        if (_accessLogService != null)
+                        {
+                            var currentUsername = _authService?.GetCurrentUserDisplayName(HttpContext);
+                            if (!string.IsNullOrEmpty(currentUsername))
+                            {
+                                await _accessLogService.LogAccessAsync(currentUsername, AccessLogType.Deletion,
+                                    emailId: email.Id,
+                                    emailSubject: email.Subject.Length > 255 ? email.Subject.Substring(0, 255) : email.Subject,
+                                    emailFrom: email.From.Length > 255 ? email.From.Substring(0, 255) : email.From,
+                                    mailAccountId: account.Id);
+                            }
+                        }
+                        break;
+
+                    case MailboxDeletionResult.NotFound:
+                        _logger.LogWarning("Email {EmailId} not found in M365 mailbox {Mailbox}", id, account.EmailAddress);
+                        TempData["ErrorMessage"] = _localizer["DeleteFromMailboxNotFound"].Value;
+                        break;
+
+                    default:
+                        TempData["ErrorMessage"] = _localizer["DeleteFromMailboxError"].Value;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting email {EmailId} from M365 mailbox", id);
+                TempData["ErrorMessage"] = _localizer["DeleteFromMailboxError"].Value;
+            }
+
+            return RedirectToAction(nameof(Details), new { id, returnUrl });
+        }
+
         // POST: Emails/DeleteSelected
         [HttpPost]
         [ValidateAntiForgeryToken]

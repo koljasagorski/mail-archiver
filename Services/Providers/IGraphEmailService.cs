@@ -1,4 +1,5 @@
 using MailArchiver.Models;
+using MailArchiver.Services.Providers.Graph;
 using Microsoft.Graph.Models;
 
 namespace MailArchiver.Services.Providers
@@ -48,5 +49,14 @@ namespace MailArchiver.Services.Providers
         /// <param name="preserveFolderStructure">If true, recreates the original folder hierarchy under the target folder</param>
         /// <returns>True if restoration is successful</returns>
         Task<bool> RestoreEmailToFolderAsync(ArchivedEmail email, MailAccount targetAccount, string folderName, bool preserveFolderStructure);
+
+        /// <summary>
+        /// Deletes an email from the live Microsoft 365 mailbox (moves it to Deleted Items on the server).
+        /// The local archive copy is not affected.
+        /// </summary>
+        /// <param name="email">The archived email whose original should be deleted on the server</param>
+        /// <param name="account">The M365 account that the email was archived from</param>
+        /// <returns>The outcome of the deletion attempt</returns>
+        Task<MailboxDeletionResult> DeleteEmailFromMailboxAsync(ArchivedEmail email, MailAccount account);
     }
 }
